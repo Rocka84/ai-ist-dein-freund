@@ -15,8 +15,10 @@
   const mockupText = document.getElementById('mockup-text');
   const mockupSendBtn = document.getElementById('mockup-send-btn');
   const punchlineCard = document.getElementById('punchline-card');
+  const punchlineQuote = document.getElementById('punchline-quote');
   const countdownTimer = document.getElementById('countdown-timer');
   const skipRedirectBtn = document.getElementById('skip-redirect-btn');
+  const snarkToggle = document.getElementById('snark-toggle');
 
   let toastTimeout = null;
   let countdownInterval = null;
@@ -63,6 +65,14 @@
     return `https://www.perplexity.ai/search?q=${encodeURIComponent(query)}`;
   }
 
+  function buildShareLink(query, isSnark) {
+    let url = `${window.location.origin}${window.location.pathname}?q=${encodeURIComponent(query)}`;
+    if (isSnark) {
+      url += '&snark=1';
+    }
+    return url;
+  }
+
   function moveMouseTo(targetX, targetY, durationMs = 800) {
     return new Promise((resolve) => {
       simulatedMouse.style.transition = `left ${durationMs}ms cubic-bezier(0.25, 1, 0.5, 1), top ${durationMs}ms cubic-bezier(0.25, 1, 0.5, 1)`;
@@ -79,9 +89,15 @@
     await sleep(100);
   }
 
-  async function runRecipientAnimation(query) {
+  async function runRecipientAnimation(query, isSnark = false) {
     generatorView.classList.add('hidden');
     recipientView.classList.remove('hidden');
+
+    if (isSnark) {
+      punchlineQuote.innerHTML = 'War das so schwer? 🙃<br><span class="text-gradient">AI ist dein Freund.</span>';
+    } else {
+      punchlineQuote.innerHTML = 'Gern geschehen! ✨<br><span class="text-gradient">AI ist dein Freund.</span>';
+    }
 
     simulatedMouse.classList.remove('hidden');
     const startX = window.innerWidth * 0.85;
@@ -156,17 +172,32 @@
     generatorView.classList.remove('hidden');
     recipientView.classList.add('hidden');
 
-    promptForm.addEventListener('submit', (e) => {
-      e.preventDefault();
+    const updateLinkOutput = () => {
       const query = promptInput.value.trim();
       if (!query) return;
-
-      const generatedUrl = `${window.location.origin}${window.location.pathname}?q=${encodeURIComponent(query)}`;
+      const isSnark = snarkToggle ? snarkToggle.checked : false;
+      const generatedUrl = buildShareLink(query, isSnark);
       resultUrl.value = generatedUrl;
+      return generatedUrl;
+    };
+
+    if (snarkToggle) {
+      snarkToggle.addEventListener('change', () => {
+        if (!resultBox.classList.contains('hidden')) {
+          updateLinkOutput();
+        }
+      });
+    }
+
+    promptForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const generatedUrl = updateLinkOutput();
+      if (!generatedUrl) return;
+
       resultBox.classList.remove('hidden');
 
       copyText(generatedUrl).then(() => {
-        showToast('In die Zwischenablage kopiert! Jetzt an den Faulpelz senden.');
+        showToast('In die Zwischenablage kopiert! Jetzt Link teilen.');
       });
     });
 
@@ -186,9 +217,10 @@
   function initApp() {
     const params = new URLSearchParams(window.location.search);
     const query = params.get('q');
+    const isSnark = params.get('snark') === '1';
 
     if (query && query.trim()) {
-      runRecipientAnimation(query.trim());
+      runRecipientAnimation(query.trim(), isSnark);
     } else {
       initGenerator();
     }

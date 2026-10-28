@@ -38,12 +38,12 @@
       </div>
 
       <h1 class="hero-title">
-        War das so schwer?<br>
+        Fragen einfach beantworten.<br>
         <span class="text-gradient">AI ist dein Freund.</span>
       </h1>
 
       <p class="hero-subtitle">
-        Jemand stellt dir eine triviale Frage? Erstelle einen animierten Link und zeig ihm mit einem Augenzwinkern, wie einfach es mit einer KI gewesen wäre.
+        Jemand stellt dir eine Frage? Erstelle einen animierten Link und zeig ihm mit Stil, wie schnell eine moderne KI Antworten findet.
       </p>
 
       <div class="glass-card">
@@ -61,6 +61,17 @@
               required
               autocomplete="off"
             >
+          </div>
+
+          <div class="toggle-wrapper">
+            <label class="toggle-switch">
+              <input type="checkbox" id="snark-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+            <label for="snark-toggle" class="toggle-text-group">
+              <span class="toggle-title">☕ Passiv-Aggressiv</span>
+              <span class="toggle-subtitle">Zeigt &bdquo;War das so schwer? 🙃&ldquo; statt &bdquo;Gern geschehen! ✨&ldquo;</span>
+            </label>
           </div>
 
           <button type="submit" id="generate-btn" class="btn-primary">
@@ -126,10 +137,7 @@
       </div>
 
       <div id="punchline-card" class="punchline-card hidden">
-        <h2 class="punchline-quote">
-          War das so schwer?<br>
-          <span class="text-gradient">AI ist dein Freund.</span>
-        </h2>
+        <h2 id="punchline-quote" class="punchline-quote"></h2>
         <p class="punchline-countdown">
           Weiterleitung zur Antwort in <span id="countdown-timer" class="countdown-number">3</span> Sekunden...
         </p>
