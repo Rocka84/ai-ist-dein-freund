@@ -75,12 +75,41 @@
     }
   }
 
-  function buildShareLink(query, isSnark) {
-    let url = `${window.location.origin}${window.location.pathname}?q=${encodeURIComponent(query)}`;
-    if (isSnark) {
-      url += '&snark=1';
+  function encodePayload(query, isSnark) {
+    const payload = JSON.stringify({ q: query, s: isSnark ? 1 : 0 });
+    const utf8 = new TextEncoder().encode(payload);
+    let bin = '';
+    for (let i = 0; i < utf8.length; i++) {
+      bin += String.fromCharCode(utf8[i]);
     }
-    return url;
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function decodePayload(str) {
+    try {
+      let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) {
+        b64 += '=';
+      }
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) {
+        bytes[i] = bin.charCodeAt(i);
+      }
+      const json = new TextDecoder().decode(bytes);
+      const data = JSON.parse(json);
+      if (data && typeof data.q === 'string') {
+        return { query: data.q, isSnark: data.s === 1 };
+      }
+    } catch (_) {
+      // Ignored
+    }
+    return null;
+  }
+
+  function buildShareLink(query, isSnark) {
+    const encoded = encodePayload(query, isSnark);
+    return `${window.location.origin}${window.location.pathname}?p=${encoded}`;
   }
 
   function moveMouseTo(targetX, targetY, durationMs = 800) {
@@ -162,9 +191,7 @@
       if (countdownInterval) clearInterval(countdownInterval);
       trackEvent('redirect-total', 'Weiterleitung Gesamt');
       trackEvent('redirect-perplexity', 'Weiterleitung zu Perplexity');
-      copyText(query).finally(() => {
-        window.location.href = getTargetUrl(query);
-      });
+      window.location.href = getTargetUrl(query);
     };
 
     countdownInterval = setInterval(() => {
@@ -234,14 +261,17 @@
 
   function initApp() {
     const params = new URLSearchParams(window.location.search);
-    const query = params.get('q');
-    const isSnark = params.get('snark') === '1';
+    const payloadParam = params.get('p');
 
-    if (query && query.trim()) {
-      runRecipientAnimation(query.trim(), isSnark);
-    } else {
-      initGenerator();
+    if (payloadParam) {
+      const decoded = decodePayload(payloadParam);
+      if (decoded && decoded.query.trim()) {
+        runRecipientAnimation(decoded.query.trim(), decoded.isSnark);
+        return;
+      }
     }
+
+    initGenerator();
   }
 
   document.addEventListener('DOMContentLoaded', initApp);
