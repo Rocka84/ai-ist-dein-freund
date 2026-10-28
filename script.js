@@ -65,6 +65,16 @@
     return `https://www.perplexity.ai/search?q=${encodeURIComponent(query)}`;
   }
 
+  function trackEvent(path, title) {
+    if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+      window.goatcounter.count({
+        path: path,
+        title: title || path,
+        event: true,
+      });
+    }
+  }
+
   function buildShareLink(query, isSnark) {
     let url = `${window.location.origin}${window.location.pathname}?q=${encodeURIComponent(query)}`;
     if (isSnark) {
@@ -92,6 +102,7 @@
   async function runRecipientAnimation(query, isSnark = false) {
     generatorView.classList.add('hidden');
     recipientView.classList.remove('hidden');
+    trackEvent('recipient-view', 'Empfänger Ansicht');
 
     if (isSnark) {
       punchlineQuote.innerHTML = 'War das so schwer? 🙃<br><span class="text-gradient">AI ist dein Freund.</span>';
@@ -149,6 +160,8 @@
 
     const executeRedirect = () => {
       if (countdownInterval) clearInterval(countdownInterval);
+      trackEvent('redirect-total', 'Weiterleitung Gesamt');
+      trackEvent('redirect-perplexity', 'Weiterleitung zu Perplexity');
       copyText(query).finally(() => {
         window.location.href = getTargetUrl(query);
       });
@@ -193,6 +206,11 @@
       e.preventDefault();
       const generatedUrl = updateLinkOutput();
       if (!generatedUrl) return;
+
+      trackEvent('link-created', 'Link Generiert');
+      if (snarkToggle && snarkToggle.checked) {
+        trackEvent('snark-enabled', 'Passiv-Aggressiv Aktiviert');
+      }
 
       resultBox.classList.remove('hidden');
 
