@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="orbGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dark Obsidian Disk Background -->
+  <circle cx="50" cy="50" r="48" fill="#0a0d14"/>
+
+  <!-- Glowing Rim Gradient Ring -->
+  <circle cx="50" cy="50" r="41" stroke="url(#orbGradient)" stroke-width="6"/>
+  
+  <!-- Left Eye: Winking Smile Arc -->
+  <path d="M 31 46.5 Q 38.5 36.5 46 46.5" stroke="#00f0ff" stroke-width="5" stroke-linecap="round" fill="none"/>
+  
+  <!-- Right Eye: Wide Open Expressive Eye -->
+  <path d="M 54 49 C 53.5 38, 67.5 38, 67 49 C 67 50.8, 54 50.8, 54 49 Z" stroke="#00f0ff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Sparkle Pupil / Catchlight inside right eye -->
+  <circle cx="61.5" cy="43.5" r="2.8" fill="#ffffff"/>
+  
+  <!-- Warm Smile -->
+  <path d="M 43 62 Q 50 69.5 57 62" stroke="#00f0ff" stroke-width="5" stroke-linecap="round" fill="none"/>
+</svg>
