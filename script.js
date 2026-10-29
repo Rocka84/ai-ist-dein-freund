@@ -167,10 +167,14 @@
       const json = new TextDecoder().decode(bytes);
       const data = JSON.parse(json);
       if (data && typeof data.q === 'string') {
+        const query = data.q.slice(0, 500);
+        const engine = (typeof data.e === 'string' && (data.e === 'any' || Object.prototype.hasOwnProperty.call(ENGINES, data.e)))
+          ? data.e
+          : DEFAULT_ENGINE;
         return {
-          query: data.q,
+          query: query,
           isSnark: data.s === 1,
-          engine: data.e || DEFAULT_ENGINE,
+          engine: engine,
         };
       }
     } catch (_) {
@@ -250,7 +254,9 @@
 
     trackEvent('recipient-view', 'Empfaenger Ansicht');
 
-    const currentEngine = ENGINES[engineKey] || ENGINES[DEFAULT_ENGINE];
+    const currentEngine = (engineKey && Object.prototype.hasOwnProperty.call(ENGINES, engineKey))
+      ? ENGINES[engineKey]
+      : ENGINES[DEFAULT_ENGINE];
     mockupEngineTitle.textContent = currentEngine.headerTitle;
 
     const punchlineHtml = isSnark
@@ -430,11 +436,15 @@
     const legacyQuery = params.get('q');
     if (legacyQuery && legacyQuery.trim()) {
       const isSnark = params.get('s') === '1';
-      const engine = params.get('e') || DEFAULT_ENGINE;
+      const rawEngine = params.get('e');
+      const engine = (rawEngine && (rawEngine === 'any' || Object.prototype.hasOwnProperty.call(ENGINES, rawEngine)))
+        ? rawEngine
+        : DEFAULT_ENGINE;
+      const cleanQuery = legacyQuery.slice(0, 500).trim();
       if (engine === 'any') {
-        showRecipientChoice(legacyQuery.trim(), isSnark);
+        showRecipientChoice(cleanQuery, isSnark);
       } else {
-        runRecipientAnimation(legacyQuery.trim(), isSnark, engine);
+        runRecipientAnimation(cleanQuery, isSnark, engine);
       }
       return;
     }
